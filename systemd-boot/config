@@ -10,4 +10,11 @@
 # include common functions
 . "$PBL_INCLUDE/library"
 
-echo "nothing to do, really"
+if [ -x /usr/bin/sdbootutil ] ; then
+  ( set -x ; sdbootutil update-all-entries ) || err=1
+elif [ -x /usr/bin/kernel-install ] ; then
+  ( set -x ; kernel-install add-all ) || err=1
+else
+  echo "Found neither sdbootutil nor kernel-install"
+  err=1
+fi
