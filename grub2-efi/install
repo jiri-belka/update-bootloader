@@ -124,6 +124,8 @@ if [ "$SYS__BOOTLOADER__UPDATE_NVRAM" = "no" ] ; then
   append="$append --no-nvram"
 fi
 
+lib_switch_efi_mount_dir_ro_rw pre
+
 if [ "$SYS__BOOTLOADER__SECURE_BOOT" = "yes" -a -x /usr/sbin/shim-install ] ; then
   ( set -x ; /usr/sbin/shim-install --config-file=/boot/grub2/grub.cfg $append )
 elif [ -x /usr/sbin/grub2-install ] ; then
@@ -151,6 +153,7 @@ else
   exit 1
 fi
 
+lib_switch_efi_mount_dir_ro_rw post
 err=$?
 
 lib_efi_log_boot_entry

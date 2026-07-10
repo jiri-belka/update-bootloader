@@ -405,3 +405,30 @@ lib_get_default_kernel_initrd ()
     return
   done
 }
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lib_switch_efi_mount_dir_ro_rw
+#
+# Switch $efi_mount_dir filesystem ro/rw modes
+#
+lib_switch_efi_mount_dir_ro_rw ()
+{
+  local action=$1
+
+  lib_get_efi_mount_dir
+
+  case "$action" in
+    pre)
+      if findmnt -no OPTIONS "$efi_mount_dir" | tr ',' '\n' | grep -q '^ro$' ; then
+        mount -o remount,rw "$efi_mount_dir"
+      fi
+      ;;
+    post)
+      mode=$(awk -v efi_mount_dir="$efi_mount_dir" \
+        '$2 == efi_mount_dir { print $4 }' /etc/fstab | tr ',' '\n' | grep '^ro')
+      if [ -n "$mode" ]; then
+        mount -o remount,"$mode" "$efi_mount_dir"
+      fi
+      ;;
+  esac
+}
